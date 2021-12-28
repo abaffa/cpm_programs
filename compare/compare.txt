@@ -1,0 +1,10 @@
+compare: A program to compare the contents of 2 files
+Usage: compare file1 file2 max_diff
+ 
+Only the fist 20 differences are displayed unless max_diff is specified
+ 
+Example1: compare file1.com file2.com
+Example2: compare file1.com file2.com 50
+ 
+-----------------------------------------------------------------------
+Last Updated: 18-Sept-2017 - www.foxhollow.ca/cpm 

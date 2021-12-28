@@ -1,0 +1,52 @@
+xmodem.txt   This file, You're reading it!
+xmodem.com   CPM80 executable v2.7 patched to use CON: as transfer device & /Z5
+xmodem.cfg   Useful to see what CLI options are available but not really needed (I do not use this file)
+xmodem.hex   Ready to paste into your Boot Monitor (see below)
+xmodem.pkg   RC2014 "download" ready to put xmodem.com on your machine
+
+-----------------------------------------------------------------------------------------
+What is XMODEM?  How was this changed for the RC2014?
+-----------------------------------------------------------------------------------------
+A program that allows you to transfer binary files (.com) to & from your PC.
+This implementation of xmode was created by M. Eberhard.
+
+A small change was made to the official release to use the CON: as the default device
+for transfers. This means /X0 is the default settings (instead of /X2)
+
+Another RC2014 change was to make /Z5 the default CPM speed.  This affects the startup
+speed when you perform a transfer.  Old default was /Z4 but many users noted that it
+took +30secs for the transfer to start.
+
+xmodem.com is the only file needed on your RC2014 using the stock full monty kit.
+
+
+-----------------------------------------------------------------------------------------
+How to use it:
+-----------------------------------------------------------------------------------------
+For me, using the normal 'download' method, I put xmodem.com on the C> drive of the RC2014
+
+Example to upload a file from the PC to the RC2014...
+Let's say you want to upload zork1.com to the G: drive...
+
+A> G:                       # change to the G drive
+G> c:xmodem zork1.com /r    # puts xmodem in receive mode using the console
+
+now using the terminal emulator, start an xmodem send session.
+After a few seconds, xmodem will start.  Uploads are very fast, taking only seconds for large files.
+
+
+-----------------------------------------------------------------------------------------
+RC2014: How to load on a newly formatted CF Card
+-----------------------------------------------------------------------------------------
+Step 1: power on the RC2014 and hit space bar
+Step 2: Paste XMODEM.HEX (a relocated XMODEM.HEX) to terminal window. 
+        This will load xmodem.com into high memory. This normally 
+        resides at 0100, but as the ROM is active, this area is not available.
+Step 3: Type GFFE8 and press ENTER (this will relocate RAM 4100-->0100 and restart CP/M)
+Step 4: When in CP/M, SAVE 17 XMODEM.COM
+
+
+
+-----------------------------------------------------------------------------------------
+mbramwel, 12 Jan 2018
+http://web1.foxhollow.ca/cpm/xmodem.txt

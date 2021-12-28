@@ -1,0 +1,40 @@
+depkg.com - Extract files from a Package created using Grant Searle's "Binary to CPM Package"
+
+Why is this useful?
+
+Although we can use xmodem to transfer a single file to our CPM machine, it is
+a time consuming task to transfer software collections with large numbers of files.
+
+Step 1: Using the "Binary to CPM Package" utility, we can combine many files to a single file
+called a package.  
+
+Step 2: We use xmodem to transfer the package into CPM.
+
+Step 3: We use depkg.com to extract the original files.
+
+Example:  depkg infocom.pkg
+
+-----------------------------------
+Last Updated: 8 April 2018
+www.foxhollow.ca/cpm
+
+
+History:
+14 Sept 2017:  Initial release
+15 Sept 2017:  Added checksum and filesize verification
+16 Sept 2017:  Added support for lowercase hex  
+               (eg: 0xfe instead of 0xFE)
+8 April 2018:  Fixed bug that would cause the program to crash
+               if an extra linefeed was inserted at end of pkg file
+
+
+Speed Tests:
+Using the RC2014, I depkg'd infocom.pkg which is 481,423 bytes.
+It can downloaded from here: http://web1.foxhollow.ca/cpm/packages/infocom.pkg
+Some minor changes were made that improved decode speed (using infocom.pkg as a test)
+
+Results:
+14 Sept 2017: Initial release:  5 min 55 secs
+15 Sept 2017: Improved hex to byte conversion:  4 min 12 secs
+16 Sept 2017: Misc changes in vars:  2 min 44 secs
+

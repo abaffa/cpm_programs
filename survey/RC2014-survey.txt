@@ -1,0 +1,12 @@
+This version of survey has been modified to work on the RC2014.
+
+Source and compiled versions are included
+
+To create your own:
+c:mac survey    # reads survey.asm, creates survey.hex
+c:load survey   # reads survey.hex, creates survey.com
+
+Last updated: 22 Oct 2017
+http://www/foxhollow.ca/cpm/survey
+
+Thanks to PianoMatt for supplying the source code
