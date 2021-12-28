@@ -1,0 +1,6 @@
+C.TXT          U00   1,024 KB
+CC.MSG         U00   3,456 KB
+EXMPL.C        U00   256 B
+M.TXT          U00   384 B
+ROM.TXT        U00   384 B
+T.TXT          U00   128 B
