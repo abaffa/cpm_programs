@@ -1,0 +1,869 @@
+0001   0000             
+0002   0000             .org 0
+0003   0000             
+0004   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0005   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0006   0000             ;THE FOLLOWING EQUATES ARE USED
+0007   0000             ;AS OPERATING SYSTEM CONSTANTS
+0008   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0009   0000             ZERO	.EQU	0
+0010   0000             ONE		.EQU	1
+0011   0000             TWO		.EQU	2
+0012   0000             THREE	.EQU	3
+0013   0000             FOUR	.EQU	4
+0014   0000             FIVE	.EQU	5
+0015   0000             EIGHT	.EQU	$8D
+0016   0000             ADDIS1	.EQU	5			;MSDS ADDRESS DISPLAY PORT
+0017   0000             ADDIS2	.EQU	6			;LSDS ADDRESS DISPLAY PORT
+0018   0000             DATDIS	.EQU	7			;DATA DISPLAY PORT
+0019   0000             EXECC	.EQU	$16D		;EXEC KEY
+0020   0000             NEXTC	.EQU	$32D		;NEXT KEY
+0021   0000             UARTIO	.EQU	2			;UART I/O PORT
+0022   0000             UARTST	.EQU 	3			;UART STATUS PORT
+0023   0000             KEYPT	.EQU	0			;KEYBOARD INPUT PORT
+0024   0000             
+0025   0000             
+0026   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0027   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0028   0000             		ST		0
+garcia.asm line 0028: unrecognized instruction.          (ST)
+0029   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0030   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0031   0000             ;COLD SETS THE OPERATING SYSTEM STACK POINTER
+0032   0000             ;AND ENTERS THE COMMAND RECQGNIITION MODULE
+0033   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0034   0000             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0035   0000             COLD:
+0036   0000 31 7D 03    		LD   SP,SPSTRT   ;INITALIZE STACK POINTER
+0037   0003 C3 40 00    		JP   WARM01
+0038   0006             		.DS   2
+0039   0008             WARM:
+0040   0008 C3 47 00    		JP   WARM1      ;RST 1 OR WARM START
+0041   000B             		.DS   5
+0042   0010             RST2E:
+0043   0010 C3 7E 03    		JP   RST2V      ;RST 2 TRANSFER
+0044   0013             		.DS   5
+0045   0018             RST3E:
+0046   0018 C3 81 03    		JP   RST3V      ;RST 3 TRANSFER
+0047   001B             		.DS   5
+0048   0020             RST4E:
+0049   0020 C3 84 03    		JP   RST4V      ;RST 4 TRANSFER
+0050   0023             		.DS   5
+0051   0028             RST5E:
+0052   0028 C3 87 03    		JP   RST5V      ;RST 5 TRANSFER
+0053   002B             		.DS   5
+0054   0030             RST6E:
+0055   0030 C3 8A 03    		JP   RST6V      ;RST 6 TRANSFER
+0056   0033             		.DS   5
+0057   0038             RST7E:
+0058   0038 C3 8D 03    		JP   RST7V      ;RST 7 TRANSFER
+0059   003B             		.DS   5
+0060   0040             WARM01:
+0061   0040 ED 73 94 03 		LD   (SPLSAV),SP	
+0062   0044 C3 89 00    		JP   WARM2      ;G0 TO COMMAND RECOGNITION
+0063   0047             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0064   0047             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0065   0047             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0066   0047             ;WARM START SAVES THE USERS REGISTERS AND
+0067   0047             ;CENTERS THE COMMAND RECOGNITION MODE WITH
+0068   0047             ;FS DISPLAYED ON THE DATA AND ADDRESS DISPLAYS
+0069   0047             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0070   0047             WARM1:
+0071   0047 32 9C 03    		LD   (ASAV),A   ;SAVE USERS A
+0072   004A E1          		POP   HL         ;GET USERS PC FROM STACK
+0073   004B 22 96 03    		LD   (PCLSAV),HL   ;SAVE USERS PC IN SAVE AREA
+0074   004E F5          		PUSH AF
+0075   004F E1          		POP   HL         ;GET USERS FLAGS
+0076   0050 22 A0 03    		LD   (ESAV),HL   ;SAVE USERS FLAGS
+garcia.asm line 0077: Label not found: (IX)
+garcia.asm line 0077: Range of argument exceeded. (IX)
+garcia.asm line 0077: Range of argument exceeded. (LSAV)
+0077   0053 DD 36 9A 00 		LD   (IXLSAV),IX   ;SAVE USERS IX
+garcia.asm line 0078: Label not found: (IY)
+garcia.asm line 0078: Range of argument exceeded. (IY)
+garcia.asm line 0078: Range of argument exceeded. (LSAV)
+0078   0057 FD 36 9A 00 		LD   (IYLSAV),IY   ;SAVE USERS IY
+0079   005B ED 73 94 03 		LD   (SPLSAV),SP   ;SAVE USERS SP
+0080   005F ED 57       		LD   A,I         ;SAVE USERS I
+0081   0061 32 98 03    		LD   (ISAV),A
+0082   0064 ED 5F       		LD   A,R         ;SAVE USERS R
+0083   0066 32 99 03    		LD   (RSAV),A
+0084   0069 21 9D 03    		LD   HL,BSAV
+0085   006C 70          		LD   (HL),B      ;SAVE USERS B
+0086   006D 23          		INC   HL
+0087   006E 71          		LD   (HL),C      ;SAVE USERS C
+0088   006F 23          		INC   HL
+0089   0070 72          		LD   (HL),D      ;SAVE USERS D
+0090   0071 23          		INC   HL
+0091   0072 73          		LD   (HL),E      ;SAVE USERS E
+0092   0073 08          		EX   AF,AF'      ;SAVE ALTERNATE REGISTERS
+0093   0074 F5          		PUSH AF
+0094   0075 32 A4 03    		LD   (AASAV),A   ;SAVE ALT A
+0095   0078 22 A2 03    		LD   (ALSAV),HL   ;SAVE ALT H&L
+0096   007B E1          		POP   HL
+0097   007C 22 A8 03    		LD   (AESAV),HL   ;SAVE ALT FLAGS
+0098   007F 21 A5 03    		LD   HL,ABSAV
+0099   0082 70          		LD   (HL),B      ;SAVE ALT B
+0100   0083 23          		INC   HL
+0101   0084 71          		LD   (HL),C      ;SAVE ALT C
+0102   0085 23          		INC   HL
+0103   0086 72          		LD   (HL),D      ;SAVE ALT D
+0104   0087 23          		INC   HL
+0105   0088 73          		LD   (HL),E      ;SAVE ALT E
+0106   0089             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0107   0089             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0108   0089             ;COMMAND RECOGNITION MODULE
+0109   0089             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0110   0089             WARM2:
+0111   0089 CD EB 00    		CALL CLDIS      ;CLEAR DISPLAY
+0112   008C 3E FF       		LD   A,255D      ;DISPLAY FFFF FF
+0113   008E             		OUT   ADDIS1
+garcia.asm line 0113: unrecognized argument.             (ADDIS1)
+0114   008E             		OUT   ADDIS2
+garcia.asm line 0114: unrecognized argument.             (ADDIS2)
+0115   008E             		OUT   DATDIS
+garcia.asm line 0115: unrecognized argument.             (DATDIS)
+0116   008E CD F7 00    		CALL KEYIN      ;GET INPUT CHARACTER
+0117   0091 06 40       		LD   B,MEM
+0118   0093 B8          		CP   B
+0119   0094 CA CF 01    		JP   Z,MEMORY   ;JUMP IF MEMORY REQUEST
+0120   0097 04          		INC   B
+0121   0098 B8          		CP   B
+0122   0099 CA 1E 02    		JP   Z,REGIST   ;JUMP IF REGISTER REQUEST
+0123   009C 04          		INC   B
+0124   009D B8          		CP   B
+0125   009E CA D6 02    		JP   Z,GOREQ
+0126   00A1 C3 89 00    		JP   WARM2
+0127   00A4             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0128   00A4             MEM:	.EQU   64D         ;MEMORY KEY
+0129   00A4             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0130   00A4             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0131   00A4             ;RESTART RESTORES THE USERS REGISTERS
+0132   00A4             ;AND RETURNS CONTROL TO THE ADDRESS
+0133   00A4             ;SPECIFIED IN THE PC SAVE LOCATION IN THE
+0134   00A4             ;REGISTER SAVE AREA
+0135   00A4             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0136   00A4             RESTRT:
+0137   00A4 3A A5 03    		LD   A,(ABSAV)   ;RESTORE ALT REGISTERS
+0138   00A7 47          		LD   B,A
+0139   00A8 3A A6 03    		LD   A,(ACSAV)
+0140   00AB 4F          		LD   C,A
+0141   00AC 3A A7 03    		LD   A,(ADSAV)
+0142   00AF 57          		LD   D,A
+0143   00B0 3A A8 03    		LD   A,(AESAV)
+0144   00B3 5F          		LD   E,A
+0145   00B4 3A A9 03    		LD   A,(AFSAV)
+0146   00B7 6F          		LD   L,A
+0147   00B8 E5          		PUSH HL
+0148   00B9 F1          		POP   AF
+0149   00BA 3A A4 03    		LD   A,(AASAV)
+0150   00BD 2A A2 03    		LD   HL,(ALSAV)
+0151   00C0 D9          		EXX
+0152   00C1 FD 2A 92 03 		LD   IY,(IYLSAV)   ;RESTORE IY
+0153   00C5 DD 2A 90 03 		LD   IX,(IXLSAV)   ;RESTORE IX
+0154   00C9 21 98 03    		LD   HL,ISAV
+0155   00CC 7E          		LD   A,(HL)
+0156   00CD ED 47       		LD   I,A
+0157   00CF 23          		INC   HL
+0158   00D0 7E          		LD   A,(HL)
+0159   00D1 ED 4F       		LD   R,A
+0160   00D3 21 9C 03    		LD   HL,ASAV
+0161   00D6 7E          		LD   A,(HL)      ;RESTORE A
+0162   00D7 23          		INC   HL
+0163   00D8 46          		LD   B,(HL)      ;RESTORE B
+0164   00D9 23          		INC   HL
+0165   00DA 4E          		LD   C,(HL)      ;RESTORE C
+0166   00DB 23          		INC   HL
+0167   00DC 56          		LD   D,(HL)      ;RESTORE D
+0168   00DD 23          		INC   HL
+0169   00DE 5E          		LD   E,(HL)      ;RESTORE E
+0170   00DF ED 7B 94 03 		LD   SP,(SPLSAV)   ;RESTORE STACK POINTER
+0171   00E3 2A 96 03    		LD   HL,(PCLSAV)   ;REPLACE PC ON STACK
+0172   00E6 E5          		PUSH HL
+0173   00E7 2A 9A 03    		LD   HL,(LSAV)   ;RESTORE HSL
+0174   00EA C9          		RET            ;RETURN TO USER
+0175   00EB             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0176   00EB             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0177   00EB             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0178   00EB             ;CLDIS CLEARS THE DATA AND ADDRESS DISPLAYS
+0179   00EB             ;SETS THE KEYBOARD BUFFERS AND CLEARS THE
+0180   00EB             ;KEYBOARD FLAGS
+0181   00EB             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0182   00EB             CLDIS:
+0183   00EB 3E 00       		LD   A,ZERO
+0184   00ED 32 AA 03    		LD   (KFLAGS),A   ;CLEAR FLAGS
+0185   00F0 32 AB 03    		LD   (KDATA1),A   ;CLEAR BUFFER
+0186   00F3 32 AC 03    		LD   (KDATA2),A
+0187   00F6             		OUT   DATDIS      ;CLEAR DATA FIELD DISPLAY
+garcia.asm line 0187: unrecognized argument.             (DATDIS)
+0188   00F6             		OUT   ADDIS1      ;CLEAR ADDRESS FIELD DISPLAY
+garcia.asm line 0188: unrecognized argument.             (ADDIS1)
+0189   00F6             		OUT   ADDIS2
+garcia.asm line 0189: unrecognized argument.             (ADDIS2)
+0190   00F6 C9          		RET
+0191   00F7             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0192   00F7             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0193   00F7             ;KEYIN WAITS FOR INPUT FROM THE KEYBOARD
+0194   00F7             ;UPON DETECTING DATA AT THE INPUT PORT (0)
+0195   00F7             ;VIA THE STROBE BIT (7) BEING SET THE DATA
+0196   00F7             ; IS INPUT?THE STROBE BIT CLEARED? AND THE INPUT
+0197   00F7             ;CHARACTER IS RETURNED TO THE USER IN A
+0198   00F7             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0199   00F7             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0200   00F7             KEYIN:
+0201   00F7             		IN   KEYPT      ;INPUT DATA
+garcia.asm line 0201: unrecognized argument.             (KEYPT)
+0202   00F7 CB 7F       		BIT   7,A
+0203   00F9 CA F7 00    		JP   Z,KEYIN      ;L00P IF NO DATA
+0204   00FC 32 AD 03    		LD   (TEMP),A   ;SAVE CHARACTER
+0205   00FF             
+0206   00FF             KEYIN1:
+0207   00FF             		IN   KEYPT
+garcia.asm line 0207: unrecognized argument.             (KEYPT)
+0208   00FF CB 7F       		BIT   7,A
+0209   0101 C2 FF 00    		JP   NZ,KEYIN1   ;JUMP IF STROBE PRESENT
+0210   0104 3A AD 03    		LD   A,(TEMP)
+0211   0107 CB BF       		RES   7,A         ;CLEAR STROBE
+0212   0109 C9          		RET
+0213   010A             
+0214   010A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0215   010A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0216   010A             ;KFLG02 SETS THE NEXT(O) AD NO DATA(2) KEYBOARD FLAGS
+0217   010A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0218   010A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0219   010A             KFLG02:
+0220   010A 21 AA 03    		LD   HL,KFLAGS
+0221   010D CB C6       		SET   0,(HL)      ;SET NEXT FLAG
+0222   010F CB D6       		SET   2,(HL)
+0223   0111 E1          		POP   HL         ;CLEAR RETURN
+0224   0112 C9          		RET
+0225   0113             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0226   0113             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0227   0113             ;KFLGO SETS THE NEXT(0) KEYBOARD FLAG
+0228   0113             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0229   0113             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0230   0113             KFLG0:
+0231   0113 21 AA 03    		LD   HL,KFLAGS
+0232   0116 CB C6       		SET   0,(HL)      ;SET NEXT FLAG
+0233   0118 E1          		POP   HL         ;CLEAR RETURN
+0234   0119 C9          		RET
+0235   011A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0236   011A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0237   011A             ;KFLG12 SETS THE EXEC(L) AND NO DATA(2) KEYBOARD FLAG
+0238   011A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0239   011A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0240   011A             KFLG12:
+0241   011A 21 AA 03    		LD   HL,KFLAGS
+0242   011D CB CE       		SET   1,(HL)
+0243   011F CB D6       		SET   2,(HL)
+0244   0121 E1          		POP   HL         ;CLEAR RETURN
+0245   0122 C9          		RET
+0246   0123             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0247   0123             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0248   0123             ;KFLG1 SETS THE EXEC (1) KEYBOARD FLAG
+0249   0123             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0250   0123             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0251   0123             KFLG1:
+0252   0123 21 AA 03    		LD   HL,KFLAGS
+0253   0126 CB CE       		SET   1,(HL)      ;SET EXEC FLAG
+0254   0128 E1          		POP   HL         ;CLEAR RETURN
+0255   0129 C9          		RET
+0256   012A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0257   012A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0258   012A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0259   012A             ;ONECAR INPUTS ONE CHARACTER FOLLOWED BY A NEXT OR EXEC
+0260   012A             ;FROM ; FHE KEYBOARDR VALIDATES ITR AND RETURNS IT TO
+0261   012A             ;THE USER IN KBATA2
+0262   012A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0263   012A             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0264   012A             ONECAR:
+0265   012A CD EB 00    		CALL CLDIS      ;CLEAR DISPLAYRBUFFERR&FLAGS
+0266   012D CD F7 00    		CALL KEYIN      ;GET CHARACTER
+0267   0130             		OUT   DATDIS      ;DISPLAY CHARACTER
+garcia.asm line 0267: unrecognized argument.             (DATDIS)
+0268   0130 CD 49 01    		CALL CARCK1      ;CHECK CHARACTER
+0269   0133 CB 77       		BIT   6,A
+0270   0135 C2 3D 01    		JP   NZ,ONECA1   ;JUMP IF SHIFT
+0271   0138 D6 10       		SUB   16D         ;CHARACTER=0-F
+0272   013A F2 2A 01    		JP   P,ONECAR   ;JUMP IF NOT 0-F
+0273   013D             		ADD   16D
+garcia.asm line 0273: unrecognized argument.             (16D)
+0274   013D             
+0275   013D             ONECA1:
+0276   013D 32 AC 03    		LD   (KDATA2),A   ;SAVE CHARACTER
+0277   0140 CD F7 00    		CALL KEYIN      ;GET NEXT CHARACTER
+0278   0143 CD 56 01    		CALL CARCK2
+garcia.asm line 0279: Label not found: (NECA1)
+garcia.asm line 0279: Unused data in MS byte of argument. (2)
+0279   0146 C3 00 00    		JP   0NECA1      ;GO DO AGAIN NOT EXEC OR NEXT
+0280   0149             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0281   0149             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0282   0149             ;CARCK1 CHECKS FOR A NEXT OR EXEC ON AN INITIAL
+0283   0149             ;CHARACTER. IF NEXT THE ROUTINE RETURNS TO CALLER VIA
+0284   0149             ;KFLG02. IF EXEC THE ROUTINE RETURNS TO THE CALLER
+0285   0149             ;VIA KFLG12
+0286   0149             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0287   0149             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0288   0149             CARCK1:
+garcia.asm line 0289: Unused data in MS byte of argument. (3)
+0289   0149 06 2D       		LD   B,NEXTC      ;CHECK FOR NEXT
+0290   014B B8          		CP   B
+0291   014C CA 0A 01    		JP   Z,KFLG02   ;IF NEXT JUMP
+garcia.asm line 0292: Unused data in MS byte of argument. (1)
+0292   014F 06 6D       		LD   B,EXECC      ;CHECK FOR EXEC
+0293   0151 B8          		CP   B
+0294   0152 CA 1A 01    		JP   Z,KFLG12   ;IF EXEC JUMP
+0295   0155 C9          		RET            ;ELSE RETURN
+0296   0156             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0297   0156             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0298   0156             ;CARCK2 CHECKS FOR NEXT OR EXECR SETS THE PROPER
+0299   0156             ;FLAG VIA KFLGO OR KFLG1 AND RETURNS TO THE USER
+0300   0156             ; IF NOT NEXT OR EXEC THE ROUTINE RETURNS TO
+0301   0156             ;THE ORIGINATOR OF THE REQUEST
+0302   0156             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0303   0156             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0304   0156             CARCK2:
+garcia.asm line 0305: Unused data in MS byte of argument. (3)
+0305   0156 06 2D       		LD   B,NEXTC      ;CHECK FOR NEXT
+0306   0158 B8          		CP   B
+0307   0159 CA 0A 01    		JP   Z,KFLG02   ;IF NEXT JUMP
+garcia.asm line 0308: Unused data in MS byte of argument. (1)
+0308   015C 06 6D       		LD   B,EXECC      ;CHECK FOR EXEC
+0309   015E B8          		CP   B
+garcia.asm line 0310: Label not found: (KFLGL)
+garcia.asm line 0310: Unused data in MS byte of argument. (2)
+0310   015F CA 00 00    		JP   Z,KFLGL
+0311   0162 C9          		RET
+0312   0163             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0313   0163             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0314   0163             ;TWOCAR INPUTS 2 CHARACTERS FROM THE KEYBOARD
+0315   0163             ;FOLLOWED BY A NEXT OR EXEC AND RETURNS THEM TO THE
+0316   0163             ;USER IN KDATA2
+0317   0163             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0318   0163             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0319   0163             TWOCAR:
+0320   0163 CD 88 01    		CALL CLDAT      ;CLEAR BUFFERTFLAGSRAND DISPLAY
+0321   0166 CD F7 00    		CALL KEYIN      ;GET CHARACTER
+0322   0169 CD 49 01    		CALL CARCK1    ;CHECK FOR NEXT OR EXEC
+0323   016C             
+0324   016C             TWOCA1:
+0325   016C D6 10       		SUB   16D         ;CHARACTER=0-F
+0326   016E F2 63 01    		JP   P,TWOCAR   ;JUMP IF NOT 0-F
+0327   0171             		ADD   16D
+garcia.asm line 0327: unrecognized argument.             (16D)
+0328   0171 21 AC 03    		LD   HL,KDATA2
+0329   0174 46          		LD   B,(HL)      ;GET OLD DATA
+0330   0175 CB 00       		RLC   B
+0331   0177 CB 00       		RLC   B
+0332   0179 CB 00       		RLC   B
+0333   017B CB 00       		RLC   B
+0334   017D 80          		ADD   A,B         ;A=OLD&NEW
+0335   017E             		OUT   DATDIS      ;DISPLAY INPUT
+garcia.asm line 0335: unrecognized argument.             (DATDIS)
+0336   017E 77          		LD   (HL),A      ;SAVE NEW DATA
+0337   017F CD F7 00    		CALL KEYIN      ;GET NEXT CHARACTER
+0338   0182 CD 56 01    		CALL CARCK2      ;CHECK FOR TERMINATION
+0339   0185 C3 6C 01    		JP   TWOCA1      ;JUMP IF NO TERMINATION
+0340   0188             
+0341   0188             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0342   0188             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0343   0188             ;CLDAT CLEARS THE INPUT BUFFERFFLAGS; AND DATA DIS
+0344   0188             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0345   0188             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0346   0188             CLDAT:
+0347   0188 3E 00       		LD   A,ZERO
+0348   018A 32 AA 03    		LD   (KFLAGS),A   ;CLEAR FLAGS
+0349   018D 32 AC 03    		LD   (KDATA2),A   ;CLEAR BUFFER
+0350   0190 32 AB 03    		LD   (KDATA1),A
+0351   0193 C9          		RET
+0352   0194             
+0353   0194             CLADD:
+0354   0194 3E 00       		LD   A,ZERO      ;CLEAR ADDRESS DISPLAY
+0355   0196             		OUT   ADDIS1
+garcia.asm line 0355: unrecognized argument.             (ADDIS1)
+0356   0196             		OUT   ADDIS2
+garcia.asm line 0356: unrecognized argument.             (ADDIS2)
+0357   0196 C9          		RET
+0358   0197             
+0359   0197             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0360   0197             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0361   0197             ;FORCAR INPUTS FOUR CHARACTERS FROM THE KEYBOARD
+0362   0197             ;FOLLOWED BY A NEXT OR EXEC AND RETURNS THEM
+0363   0197             ;TO THE USER IN KDATA1 AND KDATA2
+0364   0197             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0365   0197             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0366   0197             FORCAR:
+0367   0197 CD 88 01    		CALL CLDAT      ;CLEAR FLAGS AND BUFFER
+0368   019A CD F7 00    		CALL KEYIN      ;GET INPUT CHARACTER
+0369   019D CD 49 01    		CALL CARCK1      ;CHECK FOR NEXT OR EXEC
+0370   01A0             
+0371   01A0             FORCA1:
+0372   01A0 D6 10       		SUB   16D         ;CHARACTER=0-F
+0373   01A2 F2 97 01    		JP   P,FORCAR   ;JUMP IF NOT 0-F
+0374   01A5             		ADD   16D
+garcia.asm line 0374: unrecognized argument.             (16D)
+0375   01A5 32 AD 03    		LD   (TEMP),A   ;SAVE CHARACTER
+0376   01A8 3A AB 03    		LD   A,(KDATA1)   ;A=MSD
+0377   01AB 21 AC 03    		LD   HL,KDATA2
+0378   01AE ED 67       		RRD            ;ADJUST DATA FOR NEW CHARACTER
+0379   01B0 07          		RLCA
+0380   01B1 07          		RLCA
+0381   01B2 07          		RLCA
+0382   01B3 07          		RLCA
+0383   01B4 E6 F0       		AND   240D      ;MASK OFF OLD IDGIT
+0384   01B6 21 AD 03    		LD   HL,TEMP
+0385   01B9 86          		ADD   A,(HL)      ;ADD IN NEU DIGIT
+0386   01BA 2A AC 03    		LD   HL,(KDATA2)   ;SAVE NEW LSDS
+0387   01BD 22 AB 03    		LD   (KDATA1),HL   ;SAVE NEW MSDS
+0388   01C0 32 AC 03    		LD   (KDATA2),A   ;SAVE NEU LSDS
+0389   01C3             		OUT   ADDIS2      ;DISPLAY LSDS
+garcia.asm line 0389: unrecognized argument.             (ADDIS2)
+0390   01C3 3A AB 03    		LD   A,(KDATA1)
+0391   01C6             		OUT   ADDIS1
+garcia.asm line 0391: unrecognized argument.             (ADDIS1)
+0392   01C6 CD F7 00    		CALL KEYIN      ;GET NEXT CHARACTER
+0393   01C9 CD 56 01    		CALL CARCK2      ;CHECK FOR NEXT OR EXEC
+0394   01CC C3 A0 01    		JP   FORCA1      ;JUMP IF NOT NEXT OR EXEC
+0395   01CF             
+0396   01CF             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0397   01CF             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0398   01CF             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0399   01CF             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0400   01CF             ;MEMORY INPUTS AN ADDRESS FROM THE KEYBOARD FOLLOUED
+0401   01CF             ;BY DATA AS DEFINED BY THE SEQUENCE
+0402   01CF             ; MEM(ADDRESS)NEXT F(DATA)NEXT»..(DATA >EXEC
+0403   01CF             ;IF DATA IS TO BE DISPLAYED
+0404   01CF             ; MEM(ADDRESS)NEXTFNEXT..;.NEXTFEXEC
+0405   01CF             ;EXEC 1 WILL RETURN CONTROL TO THE COMMAND RECOGNITION
+0406   01CF             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0407   01CF             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0408   01CF             
+0409   01CF             MEMORY:
+0410   01CF 3E 00       		LD   A,ZERO      ;CLEAR MEMORY BASE ADDRESS
+0411   01D1 32 AF 03    		LD   (MBASE1),A
+0412   01D4             		LD   (MBASE2).A
+garcia.asm line 0412: unrecognized argument.             ((MBASE2).A)
+0413   01D4 CD 94 01    		CALL CLADD
+0414   01D7 CD 97 01    		CALL FORCAR      ;GET BASE ADDRESS
+0415   01DA 3A AA 03    		LD   A,(KFLAGS)
+0416   01DD CB 4F       		BIT   1,A
+0417   01DF C2 89 00    		JP   NZ,WARM2   ;JUMP IF EXEC FLAG SET
+0418   01E2 3A AB 03    		LD   A,(KDATA1)   ;SAVE MEMORY ADDRESS
+0419   01E5 32 B0 03    		LD   (MBASE2),A
+0420   01E8 3A AC 03    		LD   A,(KDATA2)
+0421   01EB 32 AF 03    		LD   (MBASE1),A
+0422   01EE 2A AF 03    		LD   HL,(MBASE1)   ;SET MEM BASE ADDRESS
+0423   01F1             
+0424   01F1             MEM1:
+0425   01F1 7E          		LD   A,(HL)      ;GET MEMORY DATA
+0426   01F2             		OUT   DATDIS      ;DISPLAY MEMORY DATA
+garcia.asm line 0426: unrecognized argument.             (DATDIS)
+0427   01F2 CD 63 01    		CALL TWOCAR      ;GET NEW DATA
+0428   01F5 3A AA 03    		LD   A,(KFLAGS)
+0429   01F8 CB 57       		BIT   2,A
+garcia.asm line 0430: Label not found: (MEM2)
+garcia.asm line 0430: Unused data in MS byte of argument. (2)
+0430   01FA C2 00 00    		JP   NZ,MEM2      ;JUMP IF NO DATA
+0431   01FD 2A AF 03    		LD   HL,(MBASE1)   ;GET MEM ADDRESS
+0432   0200 3A AC 03    		LD   A,(KDATA2)   ;GET NEW DATA
+0433   0203 77          		LD   (HL),A      ;REPLACE OLD DATA
+0434   0204 3A AA 03    		LD   A,(KFLAGS)
+0435   0207 CB 4F       		BIT   1,A
+0436   0209 C2 89 00    		JP   NZ,WARM2   ;JUMP IF EXEC FLAG SET
+0437   020C             
+0438   020C             MEM12:
+0439   020C 2A AF 03    		LD   HL,(MBASE1)   ;INC BASE MEM ADD
+0440   020F 23          		INC   HL
+0441   0210 22 AF 03    		LD   (MBASE1),HL
+0442   0213 7D          		LD   A,L
+0443   0214             		OUT   ADDIS2
+garcia.asm line 0443: unrecognized argument.             (ADDIS2)
+0444   0214 7C          		LD   A,H
+0445   0215             		OUT   ADDIS1
+garcia.asm line 0445: unrecognized argument.             (ADDIS1)
+0446   0215 C3 F1 01    		JP   MEM1
+0447   0218             		MEM2   BIT   1,A
+garcia.asm line 0447: unrecognized instruction.          (MEM2)
+0448   0218 C2 89 00    		JP   NZ,WARM2   ;JUMP IF EXEC FLAG SET
+0449   021B C3 0C 02    		JP   MEM12
+0450   021E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0451   021E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0452   021E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0453   021E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0454   021E             ;REGIST INPUTS A REGISTER FROM THE KEYBOARD FOLLOWED BY
+0455   021E             ;DATA AS DEFINED BY THE SEQUENCE
+0456   021E             ; REG(INIT REG)NEXT F(DATA)NEXT;.;(DATA)EXEC
+0457   021E             ;REGISTER SEQUENCE IS IXFLYFSPFPCFLTRFHFLFAFBFCFDFEFFF
+0458   021E             ;ALRAH FAA RAB YAC YAD YAE Y I AF
+0459   021E             ;IF ONLY DATA IS TO BE DISPLAYED
+0460   021E             ; REG(INIT REG)NEXT YNEXT«;.EXEC
+0461   021E             ;EXEC WILL RETURN CONTROL TO THE COMMAND RECOGNITION
+0462   021E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0463   021E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0464   021E             REGIST:
+0465   021E CD 2A 01    		CALL ONECAR      ;GET INITIAL CHARACTER
+0466   0221 3A AA 03    		LD A,(KFLAGS)
+0467   0224 CB 57       		BIT   2,A
+0468   0226 C2 89 00    		JP   NZ,WARM2   ;JUMP IF NO DATA FLAG SET
+0469   0229 3A AC 03    		LD   A,(KDATA2)   ;GET BASE REGISTER
+0470   022C             
+0471   022C             REGIO:
+0472   022C 32 AE 03    		LD   (TEMP2),A
+0473   022F CB 77       		BIT   6,A         ;CHECK FOR SHIFT
+0474   0231 C2 98 02    		JP   NZ,REGISA   ;JUMP IF SHIFT KEY SET
+0475   0234 FE 06       		CP   6
+garcia.asm line 0476: Label not found: (REGIL)
+garcia.asm line 0476: Unused data in MS byte of argument. (2)
+0476   0236 F2 00 00    		JP   P,REGIL      ;JUMP IF EIGHT BIT REGISTER
+0477   0239 3D          		DEC   A
+0478   023A 3D          		DEC   A
+0479   023B             		ADD   A         ;I=(I-2)^2
+garcia.asm line 0479: unrecognized argument.             (A)
+0480   023B C3 40 02    		JP   REGI2
+0481   023E             
+0482   023E             REGI1:
+0483   023E 3C          		INC   A
+0484   023F 3C          		INC   A
+0485   0240             
+0486   0240             REGI2:
+0487   0240 32 B1 03    		LD   (REGINX),A   ;SAVE INDEX
+0488   0243 3A AE 03    		LD   A,(TEMP2)
+0489   0246 FE 10       		CP   10H
+0490   0248 FA 55 02    		JP   M,REGI2A
+0491   024B CB 77       		BIT   6,A
+0492   024D C2 55 02    		JP   NZ,REGI2A   ;JUMP IF BIT 6 SET
+0493   0250 3E 48       		LD   A,48H
+0494   0252 32 AE 03    		LD   (TEMP2),A
+0495   0255             
+0496   0255             REGI2A:
+0497   0255             		OUT   DATDIS      ;DISPLAY REGISTER SELECT
+garcia.asm line 0497: unrecognized argument.             (DATDIS)
+0498   0255 3A B1 03    		LD   A,(REGINX)
+0499   0258 FE 8D       		CP   EIGHT
+0500   025A FA A0 02    		JP   M,XYSP      ;JUMP IF 16 BIT REG
+0501   025D 21 90 03    		LD   HL,IXLSAV   ;GET BASE ADD
+0502   0260 4F          		LD   C,A
+0503   0261 06 00       		LD   B,ZERO
+0504   0263 09          		ADD   HL,BC
+garcia.asm line 0505: Label not found: (MBASEL)
+garcia.asm line 0505: Unused data in MS byte of argument. (2)
+0505   0264 22 00 00    		LD   (MBASEL),HL   ;SAUE REG SAVE ADD
+0506   0267 7E          		LD   A,(HL)      ;GET REGISTER DATA
+0507   0268             		OUT   ADDIS2      ;DISPLAY DATA
+garcia.asm line 0507: unrecognized argument.             (ADDIS2)
+0508   0268 78          		LD   A,B
+0509   0269             		OUT   ADDIS1
+garcia.asm line 0509: unrecognized argument.             (ADDIS1)
+0510   0269 CD 63 01    		CALL TWOCAR      ;GET NEW DATA
+0511   026C 3A AA 03    		LD   A,(KFLAGS)
+0512   026F CB 57       		BIT   2,A
+0513   0271 C2 83 02    		JP   NZ,REGI3   ;JUMP IF NO DATA
+0514   0274 2A AF 03    		LD   HL,(MBASE1)
+0515   0277 3A AB 03    		LD   A,(KDATA1)   ;GET NEW DATA
+0516   027A 77          		LD   (HL),A      ;REPLACE OLD DATA
+0517   027B 3A AA 03    		LD   A,(KFLAGS)
+0518   027E CB 4F       		BIT   1,A
+0519   0280 C2 89 00    		JP   NZ,WARM2   ;JUMP IF EXEC FLAG SET
+0520   0283             
+0521   0283             REGI3:
+0522   0283 3A AE 03    		LD   A,(TEMP2)   ;INCREMENT INDEX
+0523   0286 3C          		INC   A
+0524   0287 32 AE 03    		LD   (TEMP2),A
+0525   028A 3A B1 03    		LD   A,(REGINX)   ;INCREMENT INDEX
+0526   028D 3C          		INC   A
+0527   028E FE 1A       		CP   1AH
+0528   0290 FA 40 02    		JP   M,REGI2      ;JUMP IF INDEX .LT. 1A
+0529   0293             
+0530   0293             REGI4:
+0531   0293 3E 02       		LD   A,TWO      ;SET INITIAL INDEX
+garcia.asm line 0532: Label not found: (REGI0)
+garcia.asm line 0532: Unused data in MS byte of argument. (2)
+0532   0295 C3 00 00    		JP   REGI0
+0533   0298             
+0534   0298             REGISA:
+0535   0298 D6 48       		SUB   48H
+0536   029A FA 1E 02    		JP   M,REGIST   ;JUMP IF INVALID REGISTER
+0537   029D             		ADD   12H
+garcia.asm line 0537: unrecognized argument.             (12H)
+0538   029D C3 40 02    		JP   REGI2
+0539   02A0             
+0540   02A0             XYSP:
+0541   02A0 21 90 03    		LD   HL,IXLSAV
+0542   02A3 4F          		LD   C,A
+0543   02A4 06 00       		LD   B,ZERO
+0544   02A6 09          		ADD   HL,BC      ;HL=REG SAVE ADDRESS
+0545   02A7 22 AF 03    		LD   (MBASE1),HL
+0546   02AA 7E          		LD   A,(HL)      ;DISPLAY REGISTER DATA
+0547   02AB             		OUT   ADDIS2
+garcia.asm line 0547: unrecognized argument.             (ADDIS2)
+0548   02AB 23          		INC   HL
+0549   02AC 7E          		LD   A,(HL)
+0550   02AD             		OUT   ADDIS1
+garcia.asm line 0550: unrecognized argument.             (ADDIS1)
+0551   02AD 3A B1 03    		LD   A,(REGINX)
+0552   02B0 3C          		INC   A
+0553   02B1 32 B1 03    		LD   (REGINX),A
+0554   02B4 CD 97 01    		CALL FORCAR      ;GET NEW DATA
+0555   02B7 3A AA 03    		LD   A,(KFLAGS)
+0556   02BA CB 57       		BIT   2,A
+0557   02BC C2 CE 02    		JP   NZ,REGI5   ;JUMP IF NO DATA
+0558   02BF 2A AF 03    		LD   HL,(MBASE1)   ;REPLACE OLD DATA
+0559   02C2 3A AC 03    		LD   A,(KDATA2)
+0560   02C5 77          		LD   (HL),A
+0561   02C6 3A AB 03    		LD   A,(KDATA1)
+0562   02C9 23          		INC   HL
+0563   02CA 77          		LD   (HL),A
+0564   02CB 3A AA 03    		LD   A,(KFLAGS)
+0565   02CE             
+0566   02CE             REGI5:
+0567   02CE CB 4F       		BIT   1,A
+0568   02D0 C2 89 00    		JP   NZ,WARM2   ;JUMP IF EXEC FLAG SET
+0569   02D3 C3 83 02    		JP   REGI3
+0570   02D6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0571   02D6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0572   02D6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0573   02D6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0574   02D6             ;G0 RESETS THE USERS RESTART ADDRESS IN THE
+0575   02D6             ;REGISTER SAVE AREA AND EXITS TO THE RESTART
+0576   02D6             ;MODULE
+0577   02D6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0578   02D6             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0579   02D6             GOREQ:
+0580   02D6 CD 94 01    		CALL CLADD
+0581   02D9 CD 97 01    		CALL FORCAR      ;GET RESTART ADDRESS
+0582   02DC 3A AA 03    		LD   A,(KFLAGS)
+0583   02DF CB 57       		BIT   2,A
+0584   02E1 C2 89 00    		JP   NZ,WARM2   ;IF NO DATA EXIT
+0585   02E4 3A AC 03    		LD   A,(KDATA2)   ;SAVE NEW ADDRESS
+0586   02E7 32 96 03    		LD   (PCLSAV),A
+0587   02EA 3A AB 03    		LD   A,(KDATA1)
+0588   02ED 32 97 03    		LD   (PCHSAV),A
+0589   02F0 C3 A4 00    		JP   RESTRT
+0590   02F3             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0591   02F3             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0592   02F3             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0593   02F3             ;UATST IS A UART LOOP CHECK ROUTINE
+0594   02F3             ;IT UTILIZES A LOOP WITH THE OUTPUT
+0595   02F3             ;PORT 1 PATCHED TO THE INPUT PORT
+0596   02F3             ; IF AN ERROR IS DETECTED THE ERROR IS
+0597   02F3             ;DISPLYED ON THE ADDRESS DISPLAY AND
+0598   02F3             ;THE CHARACTER IS DISPLAYED ON THE DATA DISPLAY
+0599   02F3             ;THE OUTPUT CHARACTE IS DISPLAYED ON THE MSD
+0600   02F3             ;OF THE ADDRESS DISPLAY
+0601   02F3             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0602   02F3             UATST:
+0603   02F3 06 00       		LD   B,ZERO      ;
+0604   02F5             		IN   UARTST      ;GET STATUS
+garcia.asm line 0604: unrecognized argument.             (UARTST)
+0605   02F5 CB 47       		BIT   0,A
+0606   02F7 CA 0D 03    		JP   Z,UAER1      ;JUMP IF XMIT BUFFER NOT EMPTY
+0607   02FA             
+0608   02FA             UATST0:
+0609   02FA 78          		LD   A,B         ;GET OUTPUT CHARACTER
+0610   02FB             		OUT   ADDIS1
+garcia.asm line 0610: unrecognized argument.             (ADDIS1)
+0611   02FB             		OUT   UARTIO
+garcia.asm line 0611: unrecognized argument.             (UARTIO)
+0612   02FB             
+0613   02FB             UATST1:
+0614   02FB             		IN   UARTST
+garcia.asm line 0614: unrecognized argument.             (UARTST)
+garcia.asm line 0615: Label not found: (L)
+0615   02FB CB 47       		BIT   L,A
+garcia.asm line 0616: Label not found: (UATSTL)
+garcia.asm line 0616: Unused data in MS byte of argument. (2)
+0616   02FD CA 00 00    		JP   Z,UATSTL   ;JUMP IF NO DATA AVAILABLE
+0617   0300 E6 1C       		AND   1CH
+garcia.asm line 0618: Label not found: (UAERL)
+garcia.asm line 0618: Unused data in MS byte of argument. (2)
+0618   0302 C2 00 00    		JP   NZ,UAERL   ;JUMP IF PARITY ERROR
+0619   0305             		IN   UARTIO      ;GET INPUT CHARACTER
+garcia.asm line 0619: unrecognized argument.             (UARTIO)
+0620   0305             		OUT   DATDIS
+garcia.asm line 0620: unrecognized argument.             (DATDIS)
+0621   0305 B8          		CP   B
+0622   0306 C2 0E 03    		JP   NZ,UAER2   ;JUMP IF INPUT;NE;OUTPUT
+0623   0309 04          		INC   B
+0624   030A C3 FA 02    		JP   UATST0
+0625   030D             
+0626   030D             UAER1:
+0627   030D             		OUT   ADDIS2      ;DISPLAY UART STATUS
+garcia.asm line 0627: unrecognized argument.             (ADDIS2)
+0628   030D             		IN   UARTIO      ;GET INPUT DATA
+garcia.asm line 0628: unrecognized argument.             (UARTIO)
+0629   030D             		OUT   DATDIS
+garcia.asm line 0629: unrecognized argument.             (DATDIS)
+0630   030D 76          		HALT
+0631   030E             
+0632   030E             UAER2:
+0633   030E 3E 0F       		LD   A,0FH
+0634   0310 D3 06       		OUT   (ADDIS2),A
+0635   0312 76          		HALT
+0636   0313             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0637   0313             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0638   0313             ;TTYINPUT DRIVER
+0639   0313             ;INPUTS DATA INTO THE SPECIFIED BUFFER
+0640   0313             ;INPUT IS TERMINATED WHEN A CARRIAGE RETURN
+0641   0313             ;IS DETECDED OR THE NUMBER OF SPECIFIED CHARACTERS
+0642   0313             ;HAVE BEEN ! INPUTED FROM THE TRANSMITDING DEVICE
+0643   0313             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0644   0313             TTYINP:
+0645   0313 2A B2 03    		LD   HL,(TTYIBF)   ;GET BUFFER ADDRESC
+0646   0316 3A B6 03    		LD   A,(TTYIC)   ;GET NYMBER OF CHARACTERS
+0647   0319 47          		LD   B,A
+0648   031A             
+0649   031A             TTYIN1:
+0650   031A             		IN   UARTST      ;GET UART STATUS
+garcia.asm line 0650: unrecognized argument.             (UARTST)
+0651   031A CB 4F       		BIT   1,A
+garcia.asm line 0652: Label not found: (TTYINL)
+garcia.asm line 0652: Unused data in MS byte of argument. (2)
+0652   031C CA 00 00    		JP   Z,TTYINL   ;JUMP IF NO DATA
+0653   031F E6 1C       		AND   1CH
+0654   0321 C2 4C 03    		JP   NZ,TTYERR   ;JUMP IF PARITY ERROR
+0655   0324             		IN   UARTIO      ;GET INPUT CHARACTER
+garcia.asm line 0655: unrecognized argument.             (UARTIO)
+0656   0324 77          		LD   (HL),A      ;SAFE CHARACTER IN USERS BUF
+garcia.asm line 0657: Label not found: (A)
+garcia.asm line 0657: Unknown token: (,)
+garcia.asm line 0657: Unknown token.    
+0657   0325 FE 0D       		CP   A,0DH
+0658   0327 CA 42 03    		JP   Z,TTYIN2   ;JUMP IF CARRIAGE RETURN
+0659   032A 3E 01       		LD   A,ONE      ;SET OUTPUT CHARACTER COUNT
+0660   032C             
+0661   032C             TTYIN3:
+0662   032C 22 B4 03    		LD   (TTYOBF),HL   ;SET OUTPUT BUFFE ADDRESS
+0663   032F 32 B7 03    		LD   (TTYOC),A
+0664   0332 78          		LD   A,B
+0665   0333 32 AD 03    		LD   (TEMP),A
+0666   0336 CD 4D 03    		CALL TTYOUT      ;GO OUTPUT CHARACTER
+0667   0339 3A AD 03    		LD   A,(TEMP)
+0668   033C 47          		LD   B,A
+0669   033D 05          		DEC   B
+0670   033E C8          		RET   Z         ;RETURN IF ALL CHARACTERS IN
+0671   033F C3 1A 03    		JP   TTYIN1
+0672   0342             
+0673   0342             TTYIN2:
+garcia.asm line 0674: Label not found: (LF)
+garcia.asm line 0674: Unused data in MS byte of argument. (2)
+0674   0342 21 00 00    		LD   HL,LF      ;GET LINE FEED ADDRESS
+0675   0345 3E 02       		LD   A,TWO
+0676   0347 06 01       		LD   B,ONE
+0677   0349 C3 2C 03    		JP   TTYIN3
+0678   034C             
+0679   034C             TTYERR:
+0680   034C C9          		RET            ;RETURN WITH ERROR CODE IN
+0681   034D             		LF      DB   0DH,0AH      ;LINE FEED/CARRIAGE RETURN
+garcia.asm line 0681: unrecognized instruction.          (LF)
+0682   034D             
+0683   034D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0684   034D             ;TTY OUTPUT DRIVER
+0685   034D             ;TTYOUT OUTPUTS BATA FROM THE SPECIFIED
+0686   034D             ;USERS BUFFER TO THE UART; THE NUMBER OF
+0687   034D             ;USER SPECIFIED CHARACTES ARE OUTPUT
+0688   034D             ;AND CONTROL RETURNED TO THE USER
+0689   034D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0690   034D             
+0691   034D             TTYOUT:
+0692   034D 2A B4 03    		LD   HL,(TTYOBF)   ;GET BUFFER ADDRESS
+0693   0350 3A B7 03    		LD   A,(TTYOC)   ;GET NUMBER OF CHARACTERS
+0694   0353 47          		LD   B,A
+0695   0354             
+0696   0354             TTYOU1:
+0697   0354 0E 00       		LD   C,ZERO
+0698   0356 11 00 00    		LD   DE,ZERO
+0699   0359             
+0700   0359             TTYO1:
+0701   0359             		IN   UARTST      ;GET STATUS
+garcia.asm line 0701: unrecognized argument.             (UARTST)
+0702   0359 CB 47       		BIT   0,A
+0703   035B CA 67 03    		JP   Z,TTYOU2   ;JUMP IF BUFFER NOT EMPTY
+0704   035E 7E          		LD   A,(HL)      ;GET CHARACTER
+0705   035F             		OUT   .UARTIO      ;OUTPUT CHARACTER
+garcia.asm line 0705: unrecognized argument.             (.UARTIO)
+0706   035F 05          		DEC   B
+0707   0360 3E 00       		LD   A,ZERO
+0708   0362 C8          		RET   Z         ;RETURN IF BUFFER EMPTY
+0709   0363 23          		INC   HL
+0710   0364 C3 54 03    		JP   TTYOU1
+0711   0367             
+0712   0367             TTYOU2:
+0713   0367 13          		INC   DE         ;TRY AGAIN DELAY
+0714   0368 7B          		LD   A,E
+0715   0369 FE 00       		CP   ZERO
+0716   036B C2 67 03    		JP   NZ,TTYOU2
+0717   036E 7A          		LD   A, D
+0718   036F FE 00       		CP   ZERO
+0719   0371 C2 67 03    		JP   NZ,TTYOU2
+0720   0374 0C          		INC   C
+0721   0375 FE 05       		CP   FIVE
+0722   0377 C2 59 03    		JP   NZ,TTYO1   ;JUMP IF .LT.5 TRYS
+0723   037A 3E 01       		LD   A,ONE      ;ELSE RETURN WITH A=1
+0724   037C C9          		RET
+0725   037D             
+0726   037D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0727   037D             		ST   7C4H
+garcia.asm line 0727: unrecognized instruction.          (ST)
+0728   037D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0729   037D             ;PAGE 2 CONSTANS, JUMP AREAS, AND REGISTER
+0730   037D             ;SAVE AREAS
+0731   037D             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0732   037D 00          SPSTRT:   .DB   0         ;STACK AREA
+0733   037E             
+0734   037E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0735   037E             ; USER RESTART AREA
+0736   037E             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0737   037E             RST2V:   .DS   3         ; USER BRANCH AREA FOR RST 2
+0738   0381             RST3V:   .DS   3         ; USER BRANCH AREA FOR RST 3
+0739   0384             RST4V:   .DS   3         ; USER BRANCH AREA FOR RST 4
+0740   0387             RST5V:   .DS   3         ; USER BRANCH AREA FOR RST 5
+0741   038A             RST6V:   .DS   3         ; USER BRANCH AREA FOR RST 6
+0742   038D             RST7V:   .DS   3         ; USER BRANCH AREA FOR RST 7
+0743   0390             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0744   0390             ;REGISTER SAVE AREA
+0745   0390             ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0746   0390 00          IXLSAV:   .DB   0
+0747   0391 00          IXHSAV:   .DB   0
+0748   0392 00          IYLSAV:   .DB   0
+0749   0393 00          IYHSAV:   .DB   0
+0750   0394 00          SPLSAV:   .DB   0
+0751   0395 00          SPHSAV:   .DB   0
+0752   0396 00          PCLSAV:   .DB   0
+0753   0397 00          PCHSAV:   .DB   0
+0754   0398 00          ISAV:   .DB   0
+0755   0399 00          RSAV:   .DB   0
+0756   039A 00          LSAV:   .DB   0
+0757   039B 00          HSAV:   .DB   0
+0758   039C 00          ASAV:   .DB   0
+0759   039D 00          BSAV:   .DB   0
+0760   039E 00          CSAV:   .DB   0
+0761   039F 00          DSAV:   .DB   0
+0762   03A0 00          ESAV:   .DB   0
+0763   03A1 00          FSAV:   .DB   0
+0764   03A2 00          ALSAV:   .DB   0
+0765   03A3 00          AHSAV:   .DB   0
+0766   03A4 00          AASAV:   .DB   0
+0767   03A5 00          ABSAV:   .DB   0
+0768   03A6 00          ACSAV:   .DB   0
+0769   03A7 00          ADSAV:   .DB   0
+0770   03A8 00          AESAV:   .DB   0
+0771   03A9 00          AFSAV:   .DB   0
+0772   03AA             
+0773   03AA             ;
+0774   03AA             ;DATA STORAGE AREA
+0775   03AA             ;
+0776   03AA 00          KFLAGS:   .DB   0         ;KEYBOARD FLAGS
+0777   03AB 00          KDATA1:   .DB   0         ;KEYBOARD INPUT BUFFER
+0778   03AC 00          KDATA2:   .DB   0
+0779   03AD 00          TEMP:   .DB   0
+0780   03AE 00          TEMP2:   .DB   0
+0781   03AF 00          MBASE1:   .DB   0         ;BASE MEMORY ADDRESS
+0782   03B0 00          MBASE2:   .DB   0
+0783   03B1 00          REGINX:   .DB   0         ;REGISTER INDEX
+0784   03B2             TTYIBF:   .DS   2         ;TTY INPUT BUFFER ADDRESS
+0785   03B4             TTYOBF:   .DS   2         ;TTY OUTPUT BUFFER ADDRESS
+0786   03B6 00          TTYIC:   .DB   0         ;TTY INPUT CHARACTER COUNT
+0787   03B7 00          TTYOC:   .DB   0         ;TTY OUTPUT CHARACTER COUNT
+0788   03B8             ;
+0789   03B8             .END
+tasm: Number of errors = 79
